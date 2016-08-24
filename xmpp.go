@@ -203,7 +203,11 @@ func (x *XMPP) receiver() {
 		}
 
 		filtered := false
-		for _, filter := range x.filters {
+		// XXX this can be modified beneath us.
+		x.filterLock.Lock()
+		filters := x.filters
+		x.filterLock.Unlock()
+		for _, filter := range filters {
 			if filter.m.Match(v) {
 				filter.ch <- v
 				filtered = true
